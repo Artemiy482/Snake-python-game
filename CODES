@@ -1,0 +1,62 @@
+import asyncio
+import random
+from aiogram import Bot, Dispatcher, F
+from aiogram.types import Message
+from aiogram.enums import ChatType
+
+TOKEN = "8500202746:AAH2RQjglPThoQ6XQSUhOOhgpJypNj2sP6w"
+
+bot = Bot(TOKEN)
+dp = Dispatcher()
+
+# Список NFT-ссылок, каждая должна быть использована максимум один раз
+NFT_LINKS = [
+    "https://t.me/nft/SakuraFlower-34308",
+    "https://t.me/nft/SnoopDogg-59631",
+    "https://t.me/nft/VictoryMedal-63962",
+    "https://t.me/nft/SnoopDogg-412968",
+    "https://t.me/nft/SnoopDogg-140862",
+    "https://t.me/nft/SnoopDogg-401856",
+    "https://t.me/nft/SnoopDogg-230375",
+    "https://t.me/nft/SwagBag-226481",
+]
+
+@dp.message(
+    F.chat.type.in_({ChatType.GROUP, ChatType.SUPERGROUP}),
+    F.dice,
+    F.dice.emoji == "🎰"
+)
+async def slot_watcher(message: Message):
+    dice = message.dice
+    value = dice.value  # 1–64 для 🎰 [web:19]
+
+    # 777 = value == 64
+    if value == 64:
+        user = message.from_user
+        username = f"@{user.username}" if user.username else user.full_name
+
+        # Если ссылки ещё есть
+        if NFT_LINKS:
+            # Берём случайную ссылку и убираем её из списка, чтобы не повторялась [web:45][web:48]
+            link = random.choice(NFT_LINKS)
+            NFT_LINKS.remove(link)
+
+            await message.answer(
+                f"🎉 ДЖЕКПОТ 777! 🎉\n"
+                f"{username} сорвал джекпот!\n"
+                f"Твоя награда: {link}"
+            )
+            await message.answer("Вот выигрыш 🎁")
+        else:
+            # Если ссылки закончились
+            await message.answer(
+                f"🎉 ДЖЕКПОТ 777! 🎉\n"
+                f"{username} снова сорвал джекпот,\n"
+                f"но ссылки на призы закончились 😢"
+            )
+
+async def main():
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
