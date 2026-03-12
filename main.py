@@ -57,12 +57,17 @@ while True:
         stone -= SIZE
     elif direction == 'right':
         stone += SIZE
-    snake[0][0] = snake[0][0] % WIDTH
-    snake[0][1] = snake[0][1] % LENGTH
+    for el in range(len(snake)-1,0,-1):
+        snake[el][0] = snake[el - 1][0]
+        snake[el][1] = snake[el - 1][1]
+
+    snake[0][0] = stone % WIDTH
+    snake[0][1] = rock % LENGTH
 
 
 
     screen.fill(WHITE)
     draw_snake()
+
     pygame.display.update()
     clock.tick(speed)
